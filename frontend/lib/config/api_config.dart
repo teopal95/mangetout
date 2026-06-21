@@ -1,5 +1,5 @@
 class ApiConfig {
-  static const String serverBase = 'http://localhost:8080';
+  static const String serverBase = 'https://mangetout.onrender.com';
   static const String baseUrl = '$serverBase/api';
 
   static String resolveImageUrl(String url) =>
