@@ -2,7 +2,20 @@
 
 A shared wishlist app for couples. Each partner adds items — links, photos, notes — and both browse a live feed, filter by category, and mark things as done.
 
-**Flutter → Spring Boot REST API → MongoDB**, containerised with Docker Compose.
+**Flutter → Spring Boot REST API → MongoDB**, containerised with Docker Compose and deployed to the cloud.
+
+---
+
+## Live deployment
+
+| Service | Provider | URL |
+|---|---|---|
+| REST API | Render (free tier) | `https://mangetout.onrender.com` |
+| Database | MongoDB Atlas (M0 free) | `cluster0.ganec34.mongodb.net` |
+
+The backend runs fully in the cloud — no local server needed. The Android APK points directly to the Render URL and works from any network.
+
+> **Note:** Render's free tier spins down after 15 minutes of inactivity. The first request after idle takes ~30 seconds to wake the service up; subsequent requests are instant.
 
 ---
 
@@ -11,10 +24,10 @@ A shared wishlist app for couples. Each partner adds items — links, photos, no
 | Layer | Technology |
 |---|---|
 | API | Spring Boot 3.2 · Java 17 · Spring Security (JWT/JJWT) |
-| Database | MongoDB 7 |
+| Database | MongoDB 7 (Atlas in production) |
 | Mobile | Flutter 3 · Provider · GoRouter · Dio |
 | Auth | Stateless JWT — issued at login, validated per-request |
-| Infrastructure | Docker Compose (multi-stage image build) |
+| Infrastructure | Docker Compose (multi-stage image build) · Render · MongoDB Atlas |
 
 ---
 
@@ -30,12 +43,43 @@ A shared wishlist app for couples. Each partner adds items — links, photos, no
 
 ---
 
+## Deploying your own instance
+
+### 1. MongoDB Atlas (database)
+
+1. Create a free M0 cluster at [mongodb.com/atlas](https://www.mongodb.com/atlas)
+2. Add a database user and whitelist `0.0.0.0/0` under Network Access
+3. Copy the connection string:
+   ```
+   mongodb+srv://<user>:<password>@<cluster>.mongodb.net/mangetoutdb?retryWrites=true&w=majority
+   ```
+
+### 2. Render (backend)
+
+1. Create a new **Web Service** at [render.com](https://render.com) connected to this repo
+2. Render detects `render.yaml` automatically
+3. Set these environment variables in the Render dashboard:
+   - `SPRING_DATA_MONGODB_URI` — your Atlas connection string
+   - `APP_BASE_URL` — your Render service URL (e.g. `https://your-app.onrender.com`)
+4. Deploy — first build takes ~5 minutes
+
+### 3. Flutter app
+
+Update `serverBase` in [frontend/lib/config/api_config.dart](frontend/lib/config/api_config.dart) to your Render URL, then build:
+
+```bash
+cd frontend
+flutter build apk --release
+```
+
+---
+
 ## Running locally
 
 ### Prerequisites
 
 - Docker Desktop
-- Flutter SDK (for the mobile app)
+- Flutter SDK
 
 ### Backend
 
@@ -51,15 +95,6 @@ API available at `http://localhost:8080`.
 cd frontend
 flutter pub get
 flutter run
-```
-
-Targets `localhost:8080` by default. To run on a physical device, update `ApiConfig.serverBase` in [frontend/lib/config/api_config.dart](frontend/lib/config/api_config.dart) to your machine's LAN IP.
-
-### Without Docker
-
-```bash
-# Requires a local MongoDB instance on port 27017
-./mvnw spring-boot:run
 ```
 
 ---
