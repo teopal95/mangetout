@@ -17,13 +17,14 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        // Only seed if the table is empty to avoid duplicates on restart with persistent data.
         if (categoryRepository.count() == 0) {
             categoryRepository.saveAll(List.of(
-                new Category(null, "Recipes", "recipes", "🍽️"),
-                new Category(null, "Places", "places", "📍"),
-                new Category(null, "Movies", "movies", "🎬"),
-                new Category(null, "Furniture", "furniture", "🛋️"),
-                new Category(null, "Books", "books", "📚"),
+                new Category(null, "Recipes",    "recipes",    "🍽️"),
+                new Category(null, "Places",     "places",     "📍"),
+                new Category(null, "Movies",     "movies",     "🎬"),
+                new Category(null, "Furniture",  "furniture",  "🛋️"),
+                new Category(null, "Books",      "books",      "📚"),
                 new Category(null, "Activities", "activities", "🎯")
             ));
         }

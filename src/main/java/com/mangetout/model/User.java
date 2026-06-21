@@ -1,46 +1,45 @@
 package com.mangetout.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "users")
+@Document(collection = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     @NotBlank
-    @Column(nullable = false, unique = true)
+    @Indexed(unique = true)
     private String username;
 
     @Email
     @NotBlank
-    @Column(nullable = false, unique = true)
+    @Indexed(unique = true)
     private String email;
 
     @NotBlank
     @JsonIgnore
-    @Column(nullable = false)
     private String password;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "partner_id")
-    @JsonIgnore
-    private User partner;
+    private String avatarUrl;
 
-    @CreationTimestamp
+    // References the shared Couple document; null until the user is linked to a partner
+    private String coupleId;
+
+    @CreatedDate
     private LocalDateTime createdAt;
 }

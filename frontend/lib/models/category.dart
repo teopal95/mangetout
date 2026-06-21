@@ -1,5 +1,5 @@
 class Category {
-  final int id;
+  final String id;
   final String name;
   final String slug;
   final String? icon;

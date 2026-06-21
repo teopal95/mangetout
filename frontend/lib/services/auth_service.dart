@@ -6,9 +6,10 @@ class AuthService {
   final Dio _dio = Dio();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  static const _tokenKey = 'jwt_token';
+  static const _tokenKey    = 'jwt_token';
   static const _usernameKey = 'username';
-  static const _emailKey = 'email';
+  static const _emailKey    = 'email';
+  static const _avatarKey   = 'avatar_url';
 
   Future<void> register(String username, String email, String password) async {
     final response = await _dio.post(ApiConfig.register, data: {
@@ -31,13 +32,27 @@ class AuthService {
     await _storage.deleteAll();
   }
 
-  Future<String?> getToken() => _storage.read(key: _tokenKey);
-  Future<String?> getUsername() => _storage.read(key: _usernameKey);
+  Future<String?> getToken()     => _storage.read(key: _tokenKey);
+  Future<String?> getUsername()  => _storage.read(key: _usernameKey);
+  Future<String?> getEmail()     => _storage.read(key: _emailKey);
+  Future<String?> getAvatarUrl() => _storage.read(key: _avatarKey);
+
+  Future<void> saveUsername(String username) =>
+      _storage.write(key: _usernameKey, value: username);
+
+  Future<void> saveAvatarUrl(String? url) async {
+    if (url == null) {
+      await _storage.delete(key: _avatarKey);
+    } else {
+      await _storage.write(key: _avatarKey, value: url);
+    }
+  }
+
   Future<bool> isLoggedIn() async => (await getToken()) != null;
 
   Future<void> _saveSession(Map<String, dynamic> data) async {
-    await _storage.write(key: _tokenKey, value: data['token']);
+    await _storage.write(key: _tokenKey,    value: data['token']);
     await _storage.write(key: _usernameKey, value: data['username']);
-    await _storage.write(key: _emailKey, value: data['email']);
+    await _storage.write(key: _emailKey,    value: data['email']);
   }
 }

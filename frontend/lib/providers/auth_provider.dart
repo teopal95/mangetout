@@ -8,10 +8,12 @@ class AuthProvider extends ChangeNotifier {
 
   AuthState _state = AuthState.initial;
   String? _username;
+  String? _avatarUrl;
   String? _errorMessage;
 
   AuthState get state => _state;
   String? get username => _username;
+  String? get avatarUrl => _avatarUrl;
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _state == AuthState.authenticated;
 
@@ -19,6 +21,7 @@ class AuthProvider extends ChangeNotifier {
     final loggedIn = await _authService.isLoggedIn();
     if (loggedIn) {
       _username = await _authService.getUsername();
+      _avatarUrl = await _authService.getAvatarUrl();
       _state = AuthState.authenticated;
     } else {
       _state = AuthState.unauthenticated;
@@ -34,6 +37,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       await _authService.login(email, password);
       _username = await _authService.getUsername();
+      _avatarUrl = await _authService.getAvatarUrl();
       _state = AuthState.authenticated;
       notifyListeners();
       return true;
@@ -53,6 +57,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       await _authService.register(username, email, password);
       _username = username;
+      _avatarUrl = null;
       _state = AuthState.authenticated;
       notifyListeners();
       return true;
@@ -67,7 +72,14 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logout() async {
     await _authService.logout();
     _username = null;
+    _avatarUrl = null;
     _state = AuthState.unauthenticated;
+    notifyListeners();
+  }
+
+  void updateProfile({String? username, String? avatarUrl}) {
+    if (username != null) _username = username;
+    _avatarUrl = avatarUrl; // allow clearing
     notifyListeners();
   }
 

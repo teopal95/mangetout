@@ -41,6 +41,7 @@ public class JwtUtil {
         return extractAllClaims(token).getExpiration().before(new Date());
     }
 
+    // If the signature doesn't match (tampered token), this throws an exception.
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
@@ -49,6 +50,7 @@ public class JwtUtil {
                 .getPayload();
     }
 
+    // Converts the Base64-encoded secret from application.properties into a cryptographic key.
     private SecretKey getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);

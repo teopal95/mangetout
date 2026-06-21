@@ -14,6 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
   bool _obscurePassword = true;
 
   @override
@@ -25,9 +26,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+
     final auth = context.read<AuthProvider>();
     final success = await auth.login(
         _emailController.text.trim(), _passwordController.text);
+
     if (success && mounted) context.go('/home');
   }
 
@@ -49,7 +52,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Brand mark
                     Container(
                       width: 60,
                       height: 60,
@@ -62,6 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 28),
+
                     const Text(
                       'Mangetout',
                       style: TextStyle(
@@ -78,7 +81,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 40),
 
-                    // Email
                     _FieldLabel('Email address'),
                     const SizedBox(height: 8),
                     TextFormField(
@@ -95,7 +97,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Password
                     _FieldLabel('Password'),
                     const SizedBox(height: 8),
                     TextFormField(
@@ -129,6 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
 
                     const SizedBox(height: 28),
+
                     FilledButton(
                       onPressed: isLoading ? null : _submit,
                       child: isLoading
@@ -156,6 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
 
                     const SizedBox(height: 24),
+
                     OutlinedButton(
                       onPressed: () => context.go('/register'),
                       style: OutlinedButton.styleFrom(

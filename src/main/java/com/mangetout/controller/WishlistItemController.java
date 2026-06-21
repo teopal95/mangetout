@@ -12,7 +12,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/items")
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class WishlistItemController {
 
@@ -22,20 +21,11 @@ public class WishlistItemController {
     public List<WishlistItem> getAll(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) ItemStatus status) {
-        if (category != null && status != null) {
-            return wishlistItemService.findByCategoryAndStatus(category, status);
-        }
-        if (category != null) {
-            return wishlistItemService.findByCategory(category);
-        }
-        if (status != null) {
-            return wishlistItemService.findByStatus(status);
-        }
-        return wishlistItemService.findAll();
+        return wishlistItemService.findAll(category, status);
     }
 
     @GetMapping("/{id}")
-    public WishlistItem getById(@PathVariable Long id) {
+    public WishlistItem getById(@PathVariable String id) {
         return wishlistItemService.findById(id);
     }
 
@@ -46,18 +36,18 @@ public class WishlistItemController {
     }
 
     @PutMapping("/{id}")
-    public WishlistItem update(@PathVariable Long id, @Valid @RequestBody WishlistItem item) {
+    public WishlistItem update(@PathVariable String id, @Valid @RequestBody WishlistItem item) {
         return wishlistItemService.update(id, item);
     }
 
     @PatchMapping("/{id}/status")
-    public WishlistItem updateStatus(@PathVariable Long id, @RequestParam ItemStatus status) {
+    public WishlistItem updateStatus(@PathVariable String id, @RequestParam ItemStatus status) {
         return wishlistItemService.updateStatus(id, status);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable String id) {
         wishlistItemService.delete(id);
     }
 }

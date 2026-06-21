@@ -1,54 +1,52 @@
 package com.mangetout.model;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "wishlist_items")
+@Document(collection = "wishlist_items")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class WishlistItem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     @NotBlank
-    @Column(nullable = false)
     private String title;
 
-    @Column(length = 1000)
     private String description;
-
     private String notes;
     private String imageUrl;
     private String externalUrl;
+    private String linkPreviewImageUrl;
+    private String linkPreviewTitle;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private ItemStatus status = ItemStatus.WANTED;
 
+    // Category is embedded directly — idiomatic MongoDB (no join needed on read)
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "added_by")
-    private User addedBy;
+    // References the Couple this item belongs to — used for scoping all queries
+    private String coupleId;
 
-    @CreationTimestamp
+    // Store only id + username instead of embedding the full User document
+    private String addedById;
+    private String addedByUsername;
+
+    @CreatedDate
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 }

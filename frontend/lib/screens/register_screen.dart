@@ -12,9 +12,11 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
   bool _obscurePassword = true;
 
   @override
@@ -27,6 +29,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+
     final auth = context.read<AuthProvider>();
     final success = await auth.register(
       _usernameController.text.trim(),
@@ -124,6 +127,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               () => _obscurePassword = !_obscurePassword),
                         ),
                       ),
+                      // The backend also enforces minimum length — validating here gives instant feedback
                       validator: (v) => v == null || v.length < 6
                           ? 'Password must be at least 6 characters'
                           : null,
@@ -140,6 +144,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ],
 
                     const SizedBox(height: 32),
+
                     FilledButton(
                       onPressed: isLoading ? null : _submit,
                       child: isLoading
@@ -152,6 +157,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           : const Text('CREATE ACCOUNT'),
                     ),
                     const SizedBox(height: 24),
+
                     TextButton(
                       onPressed: () => context.go('/'),
                       child: const Text(
@@ -171,6 +177,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 }
 
+// Extracted to avoid repeating the same TextStyle across multiple fields.
 class _FieldLabel extends StatelessWidget {
   final String text;
   const _FieldLabel(this.text);

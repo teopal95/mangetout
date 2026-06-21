@@ -25,6 +25,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
+    // Registers a new account and returns a token so the user is logged in immediately.
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new IllegalArgumentException("Email already in use");
@@ -55,6 +56,7 @@ public class AuthService {
         return new AuthResponse(token, user.getUsername(), user.getEmail());
     }
 
+    // Spring Security uses email as the "username" throughout the security context.
     private org.springframework.security.core.userdetails.User buildUserDetails(User user) {
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),

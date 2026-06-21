@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'models/category.dart';
 import 'providers/auth_provider.dart';
+import 'screens/add_item_screen.dart';
+import 'screens/category_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/invite_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/profile_screen.dart';
 import 'screens/register_screen.dart';
 
 void main() {
@@ -19,21 +24,47 @@ final _router = GoRouter(
   initialLocation: '/',
   redirect: (context, state) {
     final auth = context.read<AuthProvider>();
+    // Don't redirect while the initial token check is still running
     if (auth.state == AuthState.initial) return null;
+
     final isAuth = auth.isAuthenticated;
     final isAuthRoute =
         state.matchedLocation == '/' || state.matchedLocation == '/register';
+
     if (!isAuth && !isAuthRoute) return '/';
     if (isAuth && isAuthRoute) return '/home';
     return null;
   },
   routes: [
-    GoRoute(path: '/', builder: (_, __) => const LoginScreen()),
-    GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
-    GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
+    GoRoute(path: '/', builder: (ctx, st) => const LoginScreen()),
+    GoRoute(path: '/register', builder: (ctx, st) => const RegisterScreen()),
+    GoRoute(path: '/home', builder: (ctx, st) => const HomeScreen()),
+    GoRoute(path: '/invite', builder: (ctx, st) => const InviteScreen()),
+    GoRoute(path: '/profile', builder: (ctx, st) => const ProfileScreen()),
+
+    // "extra" carries the Category object so we don't need to re-fetch it from the route params
     GoRoute(
       path: '/category/:slug',
-      builder: (_, __) => const HomeScreen(),
+      builder: (context, state) {
+        final category = state.extra as Category;
+        return CategoryScreen(category: category);
+      },
+    ),
+
+    GoRoute(
+      path: '/category/:slug/add',
+      builder: (context, state) {
+        final category = state.extra as Category;
+        return AddItemScreen(category: category);
+      },
+    ),
+
+    GoRoute(
+      path: '/add',
+      builder: (context, state) {
+        final categories = state.extra as List<Category>;
+        return AddItemScreen(categories: categories);
+      },
     ),
   ],
 );
@@ -64,6 +95,7 @@ class MangetoutApp extends StatelessWidget {
       brightness: Brightness.dark,
       useMaterial3: true,
       scaffoldBackgroundColor: surface,
+
       colorScheme: const ColorScheme.dark(
         primary: spotifyGreen,
         onPrimary: black,
@@ -74,6 +106,7 @@ class MangetoutApp extends StatelessWidget {
         surfaceContainerHighest: elevated,
         error: Color(0xFFCF6679),
       ),
+
       appBarTheme: const AppBarTheme(
         backgroundColor: black,
         foregroundColor: textPrimary,
@@ -88,17 +121,18 @@ class MangetoutApp extends StatelessWidget {
         ),
         iconTheme: IconThemeData(color: textPrimary),
       ),
+
       cardTheme: CardThemeData(
         color: card,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         margin: EdgeInsets.zero,
       ),
+
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: elevated,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(4),
           borderSide: const BorderSide(color: Color(0xFF535353)),
@@ -125,14 +159,13 @@ class MangetoutApp extends StatelessWidget {
         suffixIconColor: textSecondary,
         errorStyle: const TextStyle(color: Color(0xFFCF6679)),
       ),
+
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: spotifyGreen,
           foregroundColor: black,
           minimumSize: const Size(double.infinity, 50),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
           textStyle: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 14,
@@ -140,29 +173,26 @@ class MangetoutApp extends StatelessWidget {
           ),
         ),
       ),
+
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: textPrimary,
           textStyle: const TextStyle(fontSize: 13),
         ),
       ),
+
       dividerTheme: const DividerThemeData(color: Color(0xFF282828)),
+
       textTheme: const TextTheme(
-        displaySmall: TextStyle(
-            color: textPrimary, fontWeight: FontWeight.w900, letterSpacing: -1.5),
-        headlineLarge: TextStyle(
-            color: textPrimary, fontWeight: FontWeight.w700, letterSpacing: -1),
-        headlineSmall: TextStyle(
-            color: textPrimary, fontWeight: FontWeight.w700),
-        titleLarge: TextStyle(
-            color: textPrimary, fontWeight: FontWeight.w700),
-        titleMedium: TextStyle(
-            color: textPrimary, fontWeight: FontWeight.w600),
+        displaySmall: TextStyle(color: textPrimary, fontWeight: FontWeight.w900, letterSpacing: -1.5),
+        headlineLarge: TextStyle(color: textPrimary, fontWeight: FontWeight.w700, letterSpacing: -1),
+        headlineSmall: TextStyle(color: textPrimary, fontWeight: FontWeight.w700),
+        titleLarge: TextStyle(color: textPrimary, fontWeight: FontWeight.w700),
+        titleMedium: TextStyle(color: textPrimary, fontWeight: FontWeight.w600),
         bodyLarge: TextStyle(color: textPrimary),
         bodyMedium: TextStyle(color: textSecondary),
         bodySmall: TextStyle(color: textSecondary, fontSize: 11),
-        labelLarge: TextStyle(
-            color: textPrimary, fontWeight: FontWeight.w700, letterSpacing: 1.2),
+        labelLarge: TextStyle(color: textPrimary, fontWeight: FontWeight.w700, letterSpacing: 1.2),
       ),
     );
   }
